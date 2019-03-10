@@ -1,0 +1,29 @@
+{
+    "name": "Product name",
+    "description": "product description",
+    "image": "img1url",
+    "skus": [
+        {
+            "color": "False",
+            "size": "One Size",
+            "price": 87,
+            "currency": "pkr",
+            "was_price": 90,
+            "out_of_stock": "False"
+        },
+        {
+            "color": "False",
+            "size": "One Size",
+            "price": 87,
+            "currency": "pkr",
+            "was_price": 90,
+            "out_of_stock": "True"
+        }
+    ],
+    "brand": "product brand",
+    "url": "product_url",
+    "source": "metro",
+    "categories": "product_category",
+    "sub_categories": "subcat1",
+    "pid": "product_id"
+}
