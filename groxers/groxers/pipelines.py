@@ -4,8 +4,17 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
+import json
+from scrapy.exceptions import DropItem
 
 
-class GroxersPipeline(object):
+class FilterDuplicate(object):
+    def __init__(self):
+        self.pid = set()
+
     def process_item(self, item, spider):
-        return item
+        if item['pid'] in self.pid:
+            raise DropItem("Duplicate item found: %s" % item)
+        else:
+            self.pid.add(item['pid'])
+            return item
