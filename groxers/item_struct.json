@@ -1,7 +1,7 @@
 {
     "name": "Product name",
     "description": "product description",
-    "image": "img1url",
+    "image": ["img1url"],
     "skus": [
         {
             "color": "False",
@@ -23,7 +23,7 @@
     "brand": "product brand",
     "url": "product_url",
     "source": "metro",
-    "categories": "product_category",
-    "sub_categories": "subcat1",
+    "category": ["main", "sub", "third_optional"],
+    "p_type": "cloth/groxer",
     "pid": "product_id"
 }
