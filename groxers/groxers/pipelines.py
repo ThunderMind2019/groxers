@@ -18,3 +18,7 @@ class FilterDuplicate(object):
         else:
             self.pid.add(item['pid'])
             return item
+
+
+class IdentifyCategory(object):
+    pass

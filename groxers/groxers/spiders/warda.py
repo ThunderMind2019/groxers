@@ -2,7 +2,7 @@
 import json
 from parsel import Selector
 import math
-from groxers.items import Groxery
+from groxers.items import Groxer
 import scrapy
 
 

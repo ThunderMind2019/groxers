@@ -31,13 +31,14 @@ class MccSpider(Spider):
         groxery['pid'] = response.css('#menu_id2::attr(value)').extract_first()
         groxery['name'] = response.css('#menu_name2::attr(value)').extract_first()
         groxery['images'] = response.css('.product-info .image .img-responsive::attr(src)').extract()
-        groxery['sub_category'] = response.css('a[style]::text').extract()[-1]
+        # groxery['sub_category'] = response.css('a[style]::text').extract()[-1]    #needs to check and change key to category
         groxery['source'] = 'mcc'
         groxery['url'] = response.url
 
         groxery['brand'] = ''
         groxery['description'] = ''
         groxery['attributes'] = []
+        groxery['p_type'] = 'groxer'
         groxery['skus'] = self.skus(response)
         return groxery
     
@@ -50,6 +51,7 @@ class MccSpider(Spider):
         sku['currency'] = 'PKR'
         sku['price'] = response.css('.price-box .price-new::text').extract_first().replace('Rs.', '').strip()
         sku['prev_price'] = response.css('.price-box .price-old::text').extract_first().replace('Rs.', '').strip()
+        sku['out_of_stock'] = False
         skus.append(sku)
         return skus
 
