@@ -46,7 +46,7 @@ class MccSpider(Spider):
         skus = []
 
         sku = {}.copy()
-        sku['color'] = 'No color'
+        sku['color'] = 'no'
         sku['size'] = 'one size'
         sku['currency'] = 'PKR'
         sku['price'] = response.css('.price-box .price-new::text').extract_first().replace('Rs.', '').strip()

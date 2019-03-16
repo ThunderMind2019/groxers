@@ -13,7 +13,7 @@ class GulahmedSpider(scrapy.Spider):
         category_links = response.xpath(
             "//a[@class='menu-link']/@href").extract()[:-1]
         for link in category_links:
-            yield scrapy.Request(link+"?product_list_limit=100", self.parse_product_links)
+            yield scrapy.Request(link, self.parse_product_links)
 
     def parse_product_links(self, response):
         product_links = response.xpath(
@@ -28,14 +28,21 @@ class GulahmedSpider(scrapy.Spider):
     def parse_product_details(self, response):
         product = Groxer()
         product["name"] = response.xpath("//span[@data-ui-id]/text()").extract_first()
-        product["product_sku"] = response.xpath("//div[@itemprop='sku']/text()").extract_first()
-        product["description"] = response.xpath("//div[contains(@class, 'description')]//ul/li/text()").extract()
+        product["pid"] = response.xpath("//div[@itemprop='sku']/text()").extract_first()
+        product["description"] = self.get_item_description(response)
         product["images"] = self.get_item_images(response)
+        product['brand'] = 'Gul Ahmed'
         product["attributes"] = self.get_item_attributes(response)
-        product["out_of_stock"] = self.is_in_stock(response)
         product["skus"] = self.get_item_skus(response)
+        product['p_type'] = 'cloth'
+        product['source'] = 'gulahmed'
         product["url"] = response.url
         yield product
+    
+    def get_item_description(self, response):
+        raw_desc = response.xpath("//div[contains(@class, 'description')]/div//text()").extract()
+        raw_desc = [desc.strip() for desc in raw_desc if desc.strip()]
+        return ' '.join(raw_desc)
 
     def is_in_stock(self, response):
         stock = response.xpath("//div[@title='Availability']/span/text()").extract_first().strip()
@@ -49,16 +56,7 @@ class GulahmedSpider(scrapy.Spider):
         return attributes
 
     def get_item_images(self, response):
-        image_string = re.findall(
-            r'\"data\":\s+(\[.+?ll}]),', response.text)
-        images = []
-        if image_string:
-            image_string = image_string[0].strip()
-            json_images = json.loads(image_string)
-            for image in json_images:
-                images.append(image["full"])
-
-        return images
+        return response.css('a[data-image]::attr(data-image)').extract()
 
     def get_item_sizes(self, response):
         size_string = re.findall(
@@ -70,7 +68,7 @@ class GulahmedSpider(scrapy.Spider):
             json_string = json.loads(size_string)
             if json_string["attributes"]:
                 for option in json_string["attributes"]["141"]["options"]:
-                    if option["products"]:
+                    if option.get('products'):
                         sizes.append(option["label"])
                         prices.append(
                             json_string["optionPrices"][option["products"][0]])
@@ -86,21 +84,30 @@ class GulahmedSpider(scrapy.Spider):
         if prev_price:
             prev_price = prev_price.strip().strip(currency).replace(",", '')
         sizes, prices = self.get_item_sizes(response)
-        color_scheme = {}
+        skus = []
         if sizes:
             for size, amount in zip(sizes, prices):
-                color_scheme[size] = {
-                    "new_price": amount["finalPrice"]["amount"],
-                    "size": size,
-                    "currency_code": currency,
-                }
+                sku = {}.copy()
+                sku['color'] = 'no'
+                sku['size'] = size
+                sku['price'] = amount["finalPrice"]["amount"]
+                sku['currency'] = currency
+                sku['out_of_stock'] = self.is_in_stock(response)
                 if prev_price:
-                    color_scheme[size]["prev_price"] = amount["oldPrice"]["amount"]
+                    skus["prev_price"] = amount["oldPrice"]["amount"]
+                
+                skus.append(sku)
         else:
-            color_scheme["no_color_size"] = {
-                "new_price": price,
-                "currency_code": currency,
-            }
+            sku = {}.copy()
+            sku['color'] = 'no'
+            sku['size'] = 'one size'
+            sku['price'] = price
+            sku['currency'] = currency
+            sku['out_of_stock'] = self.is_in_stock(response)
+
             if prev_price:
-                color_scheme["no_color_size"]["prev_price"] = prev_price
-        return color_scheme
+                skus["prev_price"] = amount["oldPrice"]["amount"]
+
+            skus.append(sku)
+
+        return skus

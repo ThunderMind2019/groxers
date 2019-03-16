@@ -4,19 +4,19 @@
     "image": ["img1url"],
     "skus": [
         {
-            "color": "False",
+            "color": "no",
             "size": "One Size",
             "price": 87,
             "currency": "pkr",
-            "was_price": 90,
+            "prev_price": 90,
             "out_of_stock": "False"
         },
         {
-            "color": "False",
-            "size": "One Size",
+            "color": "Black",
+            "size": "one size",
             "price": 87,
             "currency": "pkr",
-            "was_price": 90,
+            "prev_price": 90,
             "out_of_stock": "True"
         }
     ],
