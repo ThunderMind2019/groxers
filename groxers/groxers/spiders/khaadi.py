@@ -15,7 +15,7 @@ class KhaadiSpider(scrapy.Spider):
             "//div[@id='om']/ul/li/a/@href").extract()
         category_links = category_links[:-3]
         for link in category_links:
-            yield scrapy.Request(link+"?product_list_limit=45", callback=self.parse_product_links)
+            yield scrapy.Request(link, callback=self.parse_product_links)
 
     def parse_product_links(self, response):
         product_links = response.xpath(
@@ -30,20 +30,29 @@ class KhaadiSpider(scrapy.Spider):
     def parse_product_details(self, response):
         product = Groxer()
         product["name"] = response.xpath("//span[@data-ui-id]/text()").extract_first()
-        product["product_sku"] = response.xpath("//div[@itemprop='sku']/text()").extract_first()
-        product["description"] = response.xpath("//div[@itemprop='description']//text()").extract()
+        product["pid"] = response.xpath("//div[@itemprop='sku']/text()").extract_first()
+        product['brand'] = 'Khaadi'
+        product["description"] = self.get_description(response)
         product["images"] = self.get_item_images(response)
         product["attributes"] = self.get_item_attributes(response)
-        product["out_of_stock"] = False
+        # product["out_of_stock"] = False
         product["skus"] = self.get_item_skus(response)
+        product['source'] = 'khaadi'
+        product['p_type'] = 'cloth'
         product["url"] = response.url
         yield product
+    
+    def get_description(self, response):
+        raw_desc = response.xpath("//div[@itemprop='description']//text()").extract()
+        raw_desc = [desc.strip() for desc in raw_desc if desc.strip() and '.swatch-option' not in desc]
+        return ' '.join(raw_desc)
 
     def get_item_images(self, response):
         images = response.xpath(
             "//div[@class='MagicToolboxSelectorsContainer']//img/@src").extract()
         images.append(response.xpath(
             "//img[@itemprop='image']/@src").extract_first())
+
         return images
 
     def get_item_attributes(self, response):
@@ -79,19 +88,26 @@ class KhaadiSpider(scrapy.Spider):
         if price:
             price = price.strip(currency).replace(",", "")
         sizes, prices = self.get_item_sizes(response)
-        color_scheme = {}
+        skus = []
         if sizes:
             for size, amount in zip(sizes, prices):
-                color_scheme[color_name+"_"+size] = {
+                sku = {
                     "color": color_name,
-                    "new_price": amount,
+                    "price": amount,
                     "size": size,
-                    "currency_code": currency,
-                }
+                    "currency": currency,
+                    'out_of_stock': False,
+                }.copy()
+                skus.append(sku)
         else:
-            color_scheme[color_name] = {
+            sku = {
                 "color": color_name,
-                "new_price": price,
-                "currency_code": currency,
-            }
-        return color_scheme
+                "price": price,
+                'size': 'one size',
+                "currency": currency,
+                'out_of_stock': False,
+            }.copy()
+            skus.append(sku)
+
+        return skus
+        
