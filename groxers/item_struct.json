@@ -20,6 +20,9 @@
             "out_of_stock": "True"
         }
     ],
+    "attributs": {
+        "Meterial": "silk"
+    },
     "brand": "product brand",
     "url": "product_url",
     "source": "metro",
