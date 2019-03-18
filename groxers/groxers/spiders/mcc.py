@@ -8,13 +8,13 @@ class MccSpider(Spider):
     name = 'mcc'
     start_urls = ['http://madinacashandcarry.com/']
 
-    perishable_foods = ['89']
+    excluded_categories = ['20', '81', '85', '91']
 
     def parse(self, response):
         cat_links = response.css('#cat_accordion a::attr(href)').extract()
         cat_links = [link for link in cat_links if 'javascript' not in link]
         for link in cat_links:
-            if link.split('/')[-1] not in self.perishable_foods:
+            if link.split('/')[-1] not in self.excluded_categories:
                 yield Request(link, self.parse_products)
         
     def parse_products(self, response):

@@ -21,7 +21,8 @@
         }
     ],
     "attributs": {
-        "Meterial": "silk"
+        "Meterial": "silk",  
+        "Desclaimer": ["asdf", "asdf"]
     },
     "brand": "product brand",
     "url": "product_url",
