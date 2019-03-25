@@ -38,7 +38,7 @@ class GulahmedSpider(scrapy.Spider):
         product['source'] = 'gulahmed'
         product["url"] = response.url
         yield product
-    
+
     def get_item_description(self, response):
         raw_desc = response.xpath("//div[contains(@class, 'description')]/div//text()").extract()
         raw_desc = [desc.strip() for desc in raw_desc if desc.strip()]
@@ -94,8 +94,8 @@ class GulahmedSpider(scrapy.Spider):
                 sku['currency'] = currency
                 sku['out_of_stock'] = self.is_in_stock(response)
                 if prev_price:
-                    skus["prev_price"] = amount["oldPrice"]["amount"]
-                
+                    sku["prev_price"] = amount["oldPrice"]["amount"]
+
                 skus.append(sku)
         else:
             sku = {}.copy()
@@ -106,7 +106,7 @@ class GulahmedSpider(scrapy.Spider):
             sku['out_of_stock'] = self.is_in_stock(response)
 
             if prev_price:
-                skus["prev_price"] = amount["oldPrice"]["amount"]
+                sku["prev_price"] = prev_price
 
             skus.append(sku)
 
