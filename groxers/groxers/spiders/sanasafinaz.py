@@ -3,11 +3,12 @@ import re
 import json
 import scrapy
 from groxers.items import Groxer
+from groxers.tools import cleanse
 
 
 class SanasafinazSpider(scrapy.Spider):
     name = 'sanasafinaz'
-    # allowed_domains = ['https://www.sanasafinaz.com']
+    allowed_domains = ['sanasafinaz.com']
     start_urls = ['https://www.sanasafinaz.com/']
 
     def parse(self, response):
@@ -29,9 +30,9 @@ class SanasafinazSpider(scrapy.Spider):
     def parse_product_details(self, response):
         product = Groxer()
         product["name"] = response.xpath("//span[@data-ui-id]/text()").extract_first()
-        product["product_sku"] = response.xpath("//div[@itemprop='sku']/text()").extract_first()
-        product["description"] = response.xpath("//div[@itemprop='description']//text()").extract()
-        product["images"] = response.xpath("//div[@class='slideset']//img/@src").extract()
+        product["pid"] = response.xpath("//div[@itemprop='sku']/text()").extract_first()
+        product["description"] = cleanse(response.xpath("//div[@itemprop='description']//text()").extract())
+        product["images"] = response.css("[data-zoom-id]::attr(href)").extract()
         product["attributes"] = self.get_item_attributes(response)
         product["out_of_stock"] = self.get_stock_availablity(response)
         product["skus"] = self.get_item_skus(response)

@@ -8,7 +8,13 @@ from groxers.items import Groxer
 class KhaadiSpider(scrapy.Spider):
     name = 'khaadi'
     # allowed_domains = ['https://www.khaadi.com/pk']
-    start_urls = ['https://www.khaadi.com/pk/']
+    start_urls = [
+        'https://www.khaadi.com/pk/',
+        # 'https://www.khaadi.com/pk/etb19104-purple.html'
+    ]
+
+    # def start_requests(self):
+    #     return [scrapy.Request(self.start_urls[1], callback=self.parse_product_details)]
 
     def parse(self, response):
         category_links = response.xpath(
@@ -35,7 +41,6 @@ class KhaadiSpider(scrapy.Spider):
         product["description"] = self.get_description(response)
         product["images"] = self.get_item_images(response)
         product["attributes"] = self.get_item_attributes(response)
-        # product["out_of_stock"] = False
         product["skus"] = self.get_item_skus(response)
         product['source'] = 'khaadi'
         product['p_type'] = 'cloth'
@@ -64,7 +69,7 @@ class KhaadiSpider(scrapy.Spider):
             }
         else:
             return {}
-
+  
     def get_item_sizes(self, response):
         size_string = re.findall(r'swatchOptions\":\s+(.+?},\"tierPrices\":\[\]}}),', response.text)
         sizes, prices = [], []
@@ -81,6 +86,15 @@ class KhaadiSpider(scrapy.Spider):
 
         return sizes, prices
 
+    def make_stock_map(self, response):
+        data = response.css(
+            'script:contains("Magento_Swatches/js/swatch-renderer")::text').extract_first()
+        if not data:
+            return {}
+        data = json.loads(data)['[data-role=swatch-options]']['Magento_Swatches/js/swatch-renderer']
+        stock_data = list(data['jsonConfig']['attributes'].values())[0]['options']
+        return {s['label']: False if s['products'] else True for s in stock_data}   # True for out_of_stock
+
     def get_item_skus(self, response):
         currency = response.xpath("//meta[@itemprop='priceCurrency']/@content").extract_first()
         color_name = response.xpath("//td[@data-th='Color']/text()").extract_first()
@@ -88,7 +102,8 @@ class KhaadiSpider(scrapy.Spider):
         if price:
             price = price.strip(currency).replace(",", "")
         sizes, prices = self.get_item_sizes(response)
-        skus = []
+        stock_map = self.make_stock_map(response)
+        skus = {}
         if sizes:
             for size, amount in zip(sizes, prices):
                 sku = {
@@ -96,18 +111,19 @@ class KhaadiSpider(scrapy.Spider):
                     "price": amount,
                     "size": size,
                     "currency": currency,
-                    'out_of_stock': False,
-                }.copy()
-                skus.append(sku)
+                    'out_of_stock': True if stock_map[size] else False,
+                }
+                skus[f'{color_name}_{size}'] = sku
         else:
-            sku = {
-                "color": color_name,
-                "price": price,
-                'size': 'one size',
-                "currency": currency,
-                'out_of_stock': False,
-            }.copy()
-            skus.append(sku)
+            return {
+                f'{color_name}': {
+                    "color": color_name,
+                    "price": price,
+                    'size': 'one size',
+                    "currency": currency,
+                    'out_of_stock': False,
+                }    
+            }
 
         return skus
         

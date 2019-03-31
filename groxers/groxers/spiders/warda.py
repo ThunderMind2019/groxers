@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import json
-from parsel import Selector
 import math
-from groxers.items import Groxer
 import scrapy
+from parsel import Selector
+
+from groxers.items import Groxer
 
 
 class WardaSpider(scrapy.Spider):
@@ -32,9 +33,9 @@ class WardaSpider(scrapy.Spider):
     def parse_items(self, response):
         json_items = json.loads(response.body)
         for item in json_items:
-            product = Groxery()
+            product = Groxer()
             product["name"] = item["productName"]
-            product["product_sku"] = item["productSKU"]
+            product["pid"] = item["productSKU"]
             product["description"] = self.parse_description(item)
             product["category"] = self.parse_category(item)
             product["images"] = self.parse_images(item)
@@ -99,7 +100,7 @@ class WardaSpider(scrapy.Spider):
             if selected == "With Inner/Slip":
                 with_inner = [value["value"].strip()
                               for value in option["value"]]
-        colors = {}
+        skus = {}
         if all_sizes:
             avail_sizes = []
             varients = item["productVarients"].replace("\\", '')
@@ -112,14 +113,17 @@ class WardaSpider(scrapy.Spider):
                 if qty > 0:
                     size = (el for el in varient["name"] if el in all_sizes)
                     avail_sizes.append(next(size, None))
-            colors[color_name] = {
+            common_sku = {
                 "color": color_name,
                 "prev_price": prev_price,
                 "new_price": new_price,
                 "currency_code": "PKR",
             }
-            if avail_sizes:
-                colors[color_name]["available_sizes"] = avail_sizes
+            for size in avail_sizes or ['']:
+                sku = common_sku.copy()
+                if size:
+                    sku['size'] = size
+                skus[f'{color_name}_{size}'] = sku
         elif with_inner:
             varients = item["productVarients"].replace("\\", '')
             varients = json.loads(varients)
@@ -130,7 +134,7 @@ class WardaSpider(scrapy.Spider):
                     new_price = prev_price - \
                         math.ceil(((prev_price/100)*float(discount)))
                     with_slip = varient["name"][len(varient["name"])-1]
-                    colors[color_name+"_"+with_slip] = {
+                    skus[f'{color_name}_{with_slip}'] = {
                         "color": color_name,
                         "with Inner/Slip": with_slip,
                         "available": "Yes",
@@ -140,16 +144,16 @@ class WardaSpider(scrapy.Spider):
                     }
                     qty = int(varient["inventoryQuantity"])
                     if qty > 0:
-                        colors[color_name+"_"+with_slip]["available"] = "yes"
+                        skus[f'{color_name}_{with_slip}']["available"] = "yes"
                     else:
-                        colors[color_name+"_"+with_slip]["available"] = "no"
+                        skus[f'{color_name}_{with_slip}']["available"] = "no"
                 except:
-                    colors[color_name+"_"+with_slip]["available"] = "no"                    
+                    skus[f'{color_name}_{with_slip}']["available"] = "no"                    
         else:
-            colors[color_name] = {
+            skus[color_name] = {
                 "color": color_name,
                 "prev_price": prev_price,
                 "new_price": new_price,
                 "currency_code": "PKR",
             }
-        return colors
+        return skus
