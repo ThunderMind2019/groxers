@@ -66,6 +66,7 @@ ROBOTSTXT_OBEY = False
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    'groxers.pipelines.FilterDuplicate': 300,
+   'groxers.pipelines.IdentifyCategory': 400,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
