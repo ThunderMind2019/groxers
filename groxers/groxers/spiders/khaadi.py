@@ -1,43 +1,44 @@
 # -*- coding: utf-8 -*-
 import re
 import json
+
 import scrapy
+from scrapy import Request
+
 from groxers.items import Groxer
 
 
 class KhaadiSpider(scrapy.Spider):
     name = 'khaadi'
+    clothing = True
     # allowed_domains = ['https://www.khaadi.com/pk']
     start_urls = [
         'https://www.khaadi.com/pk/',
-        # 'https://www.khaadi.com/pk/etb19104-purple.html'
     ]
 
-    # def start_requests(self):
-    #     return [scrapy.Request(self.start_urls[1], callback=self.parse_product_details)]
-
     def parse(self, response):
-        category_links = response.xpath(
-            "//div[@id='om']/ul/li/a/@href").extract()
+        category_links = response.css("#om > ul > li > a")
         category_links = category_links[:-3]
         for link in category_links:
-            yield scrapy.Request(link, callback=self.parse_product_links)
+            yield Request(link.css('::attr(href)').extract_first(),
+                meta={'category': link.css('::text').extract()}, callback=self.parse_product_links)
 
     def parse_product_links(self, response):
         product_links = response.xpath(
             "//a[contains(@class, 'product-item-photo')]/@href").extract()
         for link in product_links:
-            yield scrapy.Request(link, self.parse_product_details)
+            yield Request(link, meta=response.meta.copy(), callback=self.parse_product_details)
 
         next_link = response.xpath("//a[@title='Next']/@href").extract_first()
         if next_link:
-            yield scrapy.Request(next_link, self.parse_product_links)
+            yield Request(next_link, meta=response.meta.copy(), callback=self.parse_product_links)
 
     def parse_product_details(self, response):
         product = Groxer()
         product["name"] = response.xpath("//span[@data-ui-id]/text()").extract_first()
         product["pid"] = response.xpath("//div[@itemprop='sku']/text()").extract_first()
         product['brand'] = 'Khaadi'
+        product['category'] = response.meta['category']
         product["description"] = self.get_description(response)
         product["images"] = self.get_item_images(response)
         product["attributes"] = self.get_item_attributes(response)

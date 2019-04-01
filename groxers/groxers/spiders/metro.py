@@ -9,6 +9,7 @@ from groxers.items import Groxer
 
 class MetroSpider(Spider):
     name = 'metro'
+    clothing = False
 
     def start_requests(self):
         formdata = {"action":"menulist","cityid":"2"}

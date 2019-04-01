@@ -8,6 +8,7 @@ from groxers.tools import cleanse
 
 class SanasafinazSpider(scrapy.Spider):
     name = 'sanasafinaz'
+    clothing = True
     allowed_domains = ['sanasafinaz.com']
     start_urls = ['https://www.sanasafinaz.com/']
 

@@ -7,6 +7,7 @@ from groxers.items import Groxer
 class MccSpider(Spider):
     name = 'mcc'
     start_urls = ['http://madinacashandcarry.com/']
+    clothing = False
 
     excluded_categories = ['20', '81', '85', '91']
 

@@ -2,12 +2,14 @@
 from scrapy import Spider, Request
 
 from groxers.items import Groxer
+from groxers.tools import cleanse
 
 
 class AlfatahSpider(Spider):
     name = 'alfatah'
     start_urls = ['http://alfatah.pk/']
 
+    clothing = False
     excluded_category = '/fruits-vegetables'
 
     def parse(self, response):
@@ -48,6 +50,7 @@ class AlfatahSpider(Spider):
         product['brand'] = id_brand.pop(0) if id_brand else ''
         product['name'] = response.css('.product-name>h1::text').extract_first()
         product['description'] = response.css('.std.gray::text').extract_first()
+        product['category'] = cleanse(response.css('.breadcrumbs ::text').extract())[1:-1]
         product['attributes'] = self.get_attributes(response)
         product['images'] = response.css('#cloudZoom::attr(href)').extract()
         product['skus'] = self.get_skus(response)

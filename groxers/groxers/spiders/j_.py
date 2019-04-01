@@ -10,6 +10,7 @@ from groxers.items import Groxer
 
 class JSpider(Spider):
     name = 'j.-parser'
+    clothing = True
 
     def parse(self, response):
         product = Groxer()
@@ -27,7 +28,7 @@ class JSpider(Spider):
 
     def get_category(self, response):
         data = response.css('script:contains("var dlObjects =")::text').extract_first()
-        return re.findall('category":"(.*?)"', data)[0].replace('\\', '')
+        return [re.findall('category":"(.*?)"', data)[0].replace('\\', '')]
 
     def get_images(self, response):
         data = json.loads(response.css('script:contains("mage/gallery/gallery")::text').extract_first())

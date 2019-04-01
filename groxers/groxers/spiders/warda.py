@@ -9,6 +9,7 @@ from groxers.items import Groxer
 
 class WardaSpider(scrapy.Spider):
     name = 'warda'
+    clothing = True
     start_urls = ['https://warda.com.pk/']
 
     def parse(self, response):
