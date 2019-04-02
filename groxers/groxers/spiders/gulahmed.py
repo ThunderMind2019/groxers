@@ -7,7 +7,6 @@ from groxers.items import Groxer
 
 class GulahmedSpider(scrapy.Spider):
     name = 'gulahmed'
-    clothing = True
     start_urls = ['https://www.gulahmedshop.com']
 
     def parse(self, response):

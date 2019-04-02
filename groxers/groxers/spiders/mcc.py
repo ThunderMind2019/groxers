@@ -7,7 +7,6 @@ from groxers.items import Groxer
 class MccSpider(Spider):
     name = 'mcc'
     start_urls = ['http://madinacashandcarry.com/']
-    clothing = False
 
     excluded_categories = ['20', '81', '85', '91']
 
@@ -17,16 +16,16 @@ class MccSpider(Spider):
         for link in cat_links:
             if link.split('/')[-1] not in self.excluded_categories:
                 yield Request(link, self.parse_products)
-        
+
     def parse_products(self, response):
         product_links = response.css('.image a::attr(href)').extract()
         for link in product_links:
             yield Request(link, self.parse_product_details)
-        
+
         next_link = response.css('[rel="next"]::attr(href)').extract_first()
         if next_link:
             yield Request(next_link, self.parse_products)
-        
+
     def parse_product_details(self, response):
         groxery = Groxer()
         groxery['pid'] = response.css('#menu_id2::attr(value)').extract_first()
@@ -38,11 +37,11 @@ class MccSpider(Spider):
 
         groxery['brand'] = ''
         groxery['description'] = ''
-        groxery['attributes'] = []
+        groxery['attributes'] = {}.copy()
         groxery['p_type'] = 'groxer'
         groxery['skus'] = self.skus(response)
         return groxery
-    
+
     def skus(self, response):
         skus = []
 

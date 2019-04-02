@@ -10,8 +10,6 @@ from groxers.items import Groxer
 
 class KhaadiSpider(scrapy.Spider):
     name = 'khaadi'
-    clothing = True
-    # allowed_domains = ['https://www.khaadi.com/pk']
     start_urls = [
         'https://www.khaadi.com/pk/',
     ]
@@ -47,7 +45,7 @@ class KhaadiSpider(scrapy.Spider):
         product['p_type'] = 'cloth'
         product["url"] = response.url
         yield product
-    
+
     def get_description(self, response):
         raw_desc = response.xpath("//div[@itemprop='description']//text()").extract()
         raw_desc = [desc.strip() for desc in raw_desc if desc.strip() and '.swatch-option' not in desc]
@@ -70,7 +68,7 @@ class KhaadiSpider(scrapy.Spider):
             }
         else:
             return {}
-  
+
     def get_item_sizes(self, response):
         size_string = re.findall(r'swatchOptions\":\s+(.+?},\"tierPrices\":\[\]}}),', response.text)
         sizes, prices = [], []
@@ -104,7 +102,7 @@ class KhaadiSpider(scrapy.Spider):
             price = price.strip(currency).replace(",", "")
         sizes, prices = self.get_item_sizes(response)
         stock_map = self.make_stock_map(response)
-        skus = {}
+        skus = []
         if sizes:
             for size, amount in zip(sizes, prices):
                 sku = {
@@ -113,18 +111,15 @@ class KhaadiSpider(scrapy.Spider):
                     "size": size,
                     "currency": currency,
                     'out_of_stock': True if stock_map[size] else False,
-                }
-                skus[f'{color_name}_{size}'] = sku
+                }.copy()
+                skus.append(sku)
         else:
-            return {
-                f'{color_name}': {
+            return [{
                     "color": color_name,
                     "price": price,
                     'size': 'one size',
                     "currency": currency,
                     'out_of_stock': False,
-                }    
-            }
+                }]
 
         return skus
-        

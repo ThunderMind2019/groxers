@@ -29,7 +29,7 @@ class IdentifyCategory(object):
         if sub_cat:
             item['category'] = [get_main_category(sub_cat), sub_cat.title()]
             return item
-        if spider.clothing_website:
+        if item['p_type']=='cloth':
             item['category'] = ["Women's Clothing", 'Other']
         else:
             item['category'] = ['Miscellaneous', 'Other']

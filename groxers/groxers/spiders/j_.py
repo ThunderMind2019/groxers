@@ -10,7 +10,6 @@ from groxers.items import Groxer
 
 class JSpider(Spider):
     name = 'j.-parser'
-    clothing = True
 
     def parse(self, response):
         product = Groxer()
@@ -23,6 +22,8 @@ class JSpider(Spider):
         product["category"] = self.get_category(response)
         product["skus"] = self.get_skus(response)
         product["brand"] = 'J.'
+        product['p_type'] = 'cloth'
+        product['source'] = 'J.'
         product["url"] = response.url
         return product
 
@@ -38,34 +39,36 @@ class JSpider(Spider):
         data = response.css('script:contains("var dlObjects =")::text').extract_first()
         price = re.findall('price":"(.*?)"', data)[0]
         currency = response.xpath("//meta[@itemprop='priceCurrency']/@content").extract_first()
-        
+
         color = response.css("td[data-th='Color']::text").extract_first()
         if not(color):
-            color = "no_color"
+            color = "no"
 
         data = response.css(
             'script:contains("Magento_Swatches/js/swatch-renderer")::text').extract_first()
         if not data:
-            return {color: {
+            return [{
                 "color": color,
-                "new_price": price.replace(",", ''),
-                "currency_code": currency,
-            }}
+                "size": 'one size',
+                "price": price.replace(",", ''),
+                "currency": currency,
+                "out_of_stock": False,
+            }]
 
         data = json.loads(data)['[data-role=swatch-options]']['Magento_Swatches/js/swatch-renderer']
         raw_sizes = data['jsonConfig']['attributes']['963']['options']
         available_sizes = data['jsonSwatchConfig']['963'].keys()
 
-        skus = {}
+        skus = []
         for size in raw_sizes:
-            skus[f'{color}_{size["label"]}'] = {
+            sku = {
                 "color": color,
                 "size": size['label'],
                 "out_of_stock": False if size['id'] in available_sizes else True,
-                "new_price": price,
-                "currency_code": currency,
-            }
-
+                "price": price,
+                "currency": currency,
+            }.copy()
+            skus.append(sku)
         return skus
 
 class JCrawler(CrawlSpider):

@@ -9,7 +9,6 @@ from groxers.items import Groxer
 
 class WardaSpider(scrapy.Spider):
     name = 'warda'
-    clothing = True
     start_urls = ['https://warda.com.pk/']
 
     def parse(self, response):
@@ -149,7 +148,7 @@ class WardaSpider(scrapy.Spider):
                     else:
                         skus[f'{color_name}_{with_slip}']["available"] = "no"
                 except:
-                    skus[f'{color_name}_{with_slip}']["available"] = "no"                    
+                    skus[f'{color_name}_{with_slip}']["available"] = "no"
         else:
             skus[color_name] = {
                 "color": color_name,
