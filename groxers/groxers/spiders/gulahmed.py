@@ -1,29 +1,33 @@
 # -*- coding: utf-8 -*-
 import re
 import json
-import scrapy
+from scrapy import Spider, Request
+
 from groxers.items import Groxer
+from groxers.tools import cleanse
 
 
-class GulahmedSpider(scrapy.Spider):
+class GulahmedSpider(Spider):
     name = 'gulahmed'
+    allowed_domains = ['gulahmedshop.com']
     start_urls = ['https://www.gulahmedshop.com']
 
     def parse(self, response):
         category_links = response.xpath(
-            "//a[@class='menu-link']/@href").extract()[:-1]
+            "//a[@class='menu-link']")[:-1]
         for link in category_links:
-            yield scrapy.Request(link, self.parse_product_links)
+            yield Request(link.css('::attr(href)').extract_first(), self.parse_product_links,
+                                 meta={'category': cleanse(link.css('span::text').extract())})
 
     def parse_product_links(self, response):
         product_links = response.xpath(
             "//a[contains(@class, 'product-item-photo')]/@href").extract()
         for link in product_links:
-            yield scrapy.Request(link, self.parse_product_details)
+            yield Request(link, self.parse_product_details, meta=response.meta.copy())
 
         next_link = response.xpath("//a[@title='Next']/@href").extract_first()
         if next_link:
-            yield scrapy.Request(next_link, self.parse_product_links)
+            yield Request(next_link, self.parse_product_links, meta=response.meta.copy())
 
     def parse_product_details(self, response):
         product = Groxer()
@@ -31,6 +35,7 @@ class GulahmedSpider(scrapy.Spider):
         product["pid"] = response.xpath("//div[@itemprop='sku']/text()").extract_first()
         product["description"] = self.get_item_description(response)
         product["images"] = self.get_item_images(response)
+        product['category'] = response.meta['category']
         product['brand'] = 'Gul Ahmed'
         product["attributes"] = self.get_item_attributes(response)
         product["skus"] = self.get_item_skus(response)

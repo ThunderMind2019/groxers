@@ -10,6 +10,7 @@ from groxers.items import Groxer
 
 class KhaadiSpider(scrapy.Spider):
     name = 'khaadi'
+    allowed_domains = ['khaadi.com']
     start_urls = [
         'https://www.khaadi.com/pk/',
     ]

@@ -86,6 +86,7 @@ class MetroSpider(Spider):
         product['name'] = raw_product['product_name'].strip()
         product['brand'] = raw_product['brand_name'].strip()
         product['images'] = [raw_product['images']]
+        product['category'] = raw_product.get('category').split('/')
         product['description'] = self.get_description(raw_product)
         product['skus'] = self.get_skus(raw_product)
         product['attributes'] = {}.copy()
