@@ -81,7 +81,7 @@ sub_category_map = {
     'frozen food': ['frozen food',],
     'deli': ['deli',],
     'general items': ['noodles', 'pasta', 'sauce', 'ghee', 'oil', 'olives', 'bakery',
-                      'biscuits', 'cereal', 'pulses', 'rice', 'atta', 'spices'],
+                      'biscuits', 'cereal', 'pulses', 'rice', 'spices'],
     'snacks': ['snack', 'confectionary'],
     'home baking': ['baking',],
     'diet and nutrition': ['diet', 'nutrition',],
