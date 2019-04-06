@@ -2,7 +2,7 @@
 def cleanse(list_or_str):
     if isinstance(list_or_str, str):
         return list_or_str.strip()
-    
+
     return [s.strip() for s in list_or_str if s.strip()]
 
 def get_main_category(sub_cat, item_type):
