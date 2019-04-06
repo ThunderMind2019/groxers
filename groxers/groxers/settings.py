@@ -11,6 +11,8 @@
 
 BOT_NAME = 'groxers'
 
+PROD_IP = '18.217.191.191:5000'
+
 SPIDER_MODULES = ['groxers.spiders']
 NEWSPIDER_MODULE = 'groxers.spiders'
 
@@ -67,7 +69,11 @@ ROBOTSTXT_OBEY = False
 ITEM_PIPELINES = {
    'groxers.pipelines.FilterDuplicate': 300,
    'groxers.pipelines.IdentifyCategory': 400,
+   'groxers.pipelines.UploadProduct': 500,
 }
+
+# Product API
+PRODUCT_API = PROD_IP + '/api/products/update'
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://doc.scrapy.org/en/latest/topics/autothrottle.html

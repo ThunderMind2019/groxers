@@ -5,7 +5,11 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 import json
+import requests
+
 from scrapy.exceptions import DropItem
+
+from groxers.settings import PRODUCT_API
 from groxers.tools import get_sub_category, get_main_category
 
 class FilterDuplicate(object):
@@ -33,4 +37,22 @@ class IdentifyCategory(object):
             item['category'] = ["Women's Clothing", 'Other']
         else:
             item['category'] = ['Miscellaneous', 'Other']
+        return item
+
+class UploadProduct(object):
+
+    def process_item(self, item, spider):
+        api = PRODUCT_API
+        if 'http' not in api:
+            api = 'http://{}'.format(api)
+
+        headers = {
+            "Content-Type": "application/json",
+        }
+        res = requests.post(
+            url=api,
+            data=json.dumps(dict(item)),
+            headers=headers,
+        )
+
         return item
