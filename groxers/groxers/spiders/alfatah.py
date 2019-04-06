@@ -2,6 +2,7 @@
 from scrapy import Spider, Request
 
 from groxers.items import Groxer
+from groxers.tools import cleanse
 
 
 class AlfatahSpider(Spider):
@@ -28,13 +29,13 @@ class AlfatahSpider(Spider):
                 yield Request(
                     url=link, callback=self.parse_product_links,
                 )
-            
+
     def parse_product_links(self, response):
         for link in response.css('.product-image::attr(href)').extract():
             yield Request(
                 url=link, callback=self.parse_product,
             )
-        
+
         next_page = response.css('[title="Next"]::attr(href)').extract_first()
         if next_page:
             yield Request(
@@ -48,14 +49,15 @@ class AlfatahSpider(Spider):
         product['brand'] = id_brand.pop(0) if id_brand else ''
         product['name'] = response.css('.product-name>h1::text').extract_first()
         product['description'] = response.css('.std.gray::text').extract_first()
+        product['category'] = cleanse(response.css('.breadcrumbs ::text').extract())[1:-1]
         product['attributes'] = self.get_attributes(response)
-        product['images'] = response.css('#cloudZoom::attr(href)').extract()
+        product['images'] = response.css('#image::attr(src)').extract()
         product['skus'] = self.get_skus(response)
         product['source'] = 'alfatah'
         product['p_type'] = 'groxer'
         product['url'] = response.url
         yield product
-    
+
     def get_skus(self, response):
         skus = []
 
@@ -67,14 +69,14 @@ class AlfatahSpider(Spider):
 
         if prev_price:
             sku['prev_price'] = prev_price.replace(',', '').replace('Rs', '').strip()
-        
+
         sku['color'] = 'no'
         sku['size'] = 'one size'
         sku['currency'] = 'PKR'
         sku['out_of_stock'] = False if 'In stock' in response.css('.in-stock>span::text').extract_first() else True
         skus.append(sku)
         return skus
-    
+
     def get_attributes(self, response):
         raw_desclaimer = response.css('.product-disclaimer ::text').extract()
         desclaimer = [d.strip() for d in raw_desclaimer if d.strip()]

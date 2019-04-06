@@ -17,7 +17,7 @@ class MetroSpider(Spider):
             callback=self.parse_categories, body=json.dumps(formdata),
             method='POST'
         )
-    
+
     def parse_categories(self, response):
         raw_categories = json.loads(response.text)['menulist'][2:]
 
@@ -33,7 +33,7 @@ class MetroSpider(Spider):
 
                 cat['levelone'] = levelone
                 raw_categories[i] = cat
-        
+
         for cat in raw_categories:
             ones = cat['levelone']
 
@@ -50,7 +50,7 @@ class MetroSpider(Spider):
                         callback=self.parse_product_codes, method='POST',
                         body=json.dumps(data), dont_filter=True,
                     )
-                
+
                 if not twos:
                     data = formdata.copy()
                     data["level"] = 2
@@ -74,7 +74,7 @@ class MetroSpider(Spider):
                 callback=self.parse_product, body=json.dumps(formdata), method='POST',
                 dont_filter=True
             )
-    
+
     def parse_product(self, response):
         raw_product = json.loads(response.text)
 
@@ -86,6 +86,7 @@ class MetroSpider(Spider):
         product['name'] = raw_product['product_name'].strip()
         product['brand'] = raw_product['brand_name'].strip()
         product['images'] = [raw_product['images']]
+        product['category'] = raw_product.get('category').split('/')
         product['description'] = self.get_description(raw_product)
         product['skus'] = self.get_skus(raw_product)
         product['attributes'] = {}.copy()
@@ -93,7 +94,7 @@ class MetroSpider(Spider):
         product['p_type'] = 'groxer'
         product['url'] = f'https://metro-online.pk/detail/{raw_product["product_url"].replace("//", "/")}'
         yield product
-    
+
     def get_skus(self, raw_product):
         skus = []
         sku = {}.copy()
@@ -102,14 +103,14 @@ class MetroSpider(Spider):
         sku['price'] = int(raw_product['product_price'])
         if int(raw_product['product_sale_price']) != 0:
             sku['prev_price'] = int(raw_product['product_sale_price']) + sku['price']
-        
+
         sku['out_of_sku'] = False if 'In Stock' in raw_product['stocklvel'] else True
         sku['currency'] = 'PKR'
 
         skus.append(sku)
 
         return skus
-    
+
     def get_description(self, raw_product):
         desc = raw_product['product_desc']
 
@@ -122,4 +123,3 @@ class MetroSpider(Spider):
         raw_desc = ' '.join(raw_desc).replace('\xa0', '')
         desc = ' '.join(raw_desc.split(' '))
         return desc
-        

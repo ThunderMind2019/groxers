@@ -1,47 +1,52 @@
 # -*- coding: utf-8 -*-
 import re
 import json
+
 import scrapy
+from scrapy import Request
+
 from groxers.items import Groxer
 
 
 class KhaadiSpider(scrapy.Spider):
     name = 'khaadi'
-    # allowed_domains = ['https://www.khaadi.com/pk']
-    start_urls = ['https://www.khaadi.com/pk/']
+    allowed_domains = ['khaadi.com']
+    start_urls = [
+        'https://www.khaadi.com/pk/',
+    ]
 
     def parse(self, response):
-        category_links = response.xpath(
-            "//div[@id='om']/ul/li/a/@href").extract()
+        category_links = response.css("#om > ul > li > a")
         category_links = category_links[:-3]
         for link in category_links:
-            yield scrapy.Request(link, callback=self.parse_product_links)
+            yield Request(link.css('::attr(href)').extract_first(),
+                meta={'category': link.css('::text').extract()}, callback=self.parse_product_links)
 
     def parse_product_links(self, response):
         product_links = response.xpath(
             "//a[contains(@class, 'product-item-photo')]/@href").extract()
         for link in product_links:
-            yield scrapy.Request(link, self.parse_product_details)
+            yield Request(link, meta=response.meta.copy(), callback=self.parse_product_details)
 
         next_link = response.xpath("//a[@title='Next']/@href").extract_first()
         if next_link:
-            yield scrapy.Request(next_link, self.parse_product_links)
+            yield Request(next_link, meta=response.meta.copy(), callback=self.parse_product_links)
 
     def parse_product_details(self, response):
         product = Groxer()
         product["name"] = response.xpath("//span[@data-ui-id]/text()").extract_first()
         product["pid"] = response.xpath("//div[@itemprop='sku']/text()").extract_first()
         product['brand'] = 'Khaadi'
+        product['category'] = response.meta['category']
         product["description"] = self.get_description(response)
         product["images"] = self.get_item_images(response)
         product["attributes"] = self.get_item_attributes(response)
-        # product["out_of_stock"] = False
         product["skus"] = self.get_item_skus(response)
         product['source'] = 'khaadi'
         product['p_type'] = 'cloth'
         product["url"] = response.url
         yield product
-    
+
     def get_description(self, response):
         raw_desc = response.xpath("//div[@itemprop='description']//text()").extract()
         raw_desc = [desc.strip() for desc in raw_desc if desc.strip() and '.swatch-option' not in desc]
@@ -81,6 +86,15 @@ class KhaadiSpider(scrapy.Spider):
 
         return sizes, prices
 
+    def make_stock_map(self, response):
+        data = response.css(
+            'script:contains("Magento_Swatches/js/swatch-renderer")::text').extract_first()
+        if not data:
+            return {}
+        data = json.loads(data)['[data-role=swatch-options]']['Magento_Swatches/js/swatch-renderer']
+        stock_data = list(data['jsonConfig']['attributes'].values())[0]['options']
+        return {s['label']: False if s['products'] else True for s in stock_data}   # True for out_of_stock
+
     def get_item_skus(self, response):
         currency = response.xpath("//meta[@itemprop='priceCurrency']/@content").extract_first()
         color_name = response.xpath("//td[@data-th='Color']/text()").extract_first()
@@ -88,6 +102,7 @@ class KhaadiSpider(scrapy.Spider):
         if price:
             price = price.strip(currency).replace(",", "")
         sizes, prices = self.get_item_sizes(response)
+        stock_map = self.make_stock_map(response)
         skus = []
         if sizes:
             for size, amount in zip(sizes, prices):
@@ -96,18 +111,16 @@ class KhaadiSpider(scrapy.Spider):
                     "price": amount,
                     "size": size,
                     "currency": currency,
-                    'out_of_stock': False,
+                    'out_of_stock': True if stock_map[size] else False,
                 }.copy()
                 skus.append(sku)
         else:
-            sku = {
-                "color": color_name,
-                "price": price,
-                'size': 'one size',
-                "currency": currency,
-                'out_of_stock': False,
-            }.copy()
-            skus.append(sku)
+            return [{
+                    "color": color_name,
+                    "price": price,
+                    'size': 'one size',
+                    "currency": currency,
+                    'out_of_stock': False,
+                }]
 
         return skus
-        

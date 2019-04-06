@@ -6,7 +6,7 @@
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 import json
 from scrapy.exceptions import DropItem
-
+from groxers.tools import get_sub_category, get_main_category
 
 class FilterDuplicate(object):
     def __init__(self):
@@ -21,4 +21,16 @@ class FilterDuplicate(object):
 
 
 class IdentifyCategory(object):
-    pass
+
+    def process_item(self, item, spider):
+        item_cat = ' '.join(item['category'] + [item['name']])
+        item_cat = item_cat.lower()
+        sub_cat = get_sub_category(item_cat)
+        if sub_cat:
+            item['category'] = [get_main_category(sub_cat), sub_cat.title()]
+            return item
+        if item['p_type']=='cloth':
+            item['category'] = ["Women's Clothing", 'Other']
+        else:
+            item['category'] = ['Miscellaneous', 'Other']
+        return item
