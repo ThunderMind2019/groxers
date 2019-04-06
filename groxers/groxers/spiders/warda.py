@@ -21,7 +21,6 @@ class WardaSpider(Spider):
         product["images"] = [f'https:{i}' for i in response.css(
             '.picture-product ::attr(data-zoom-image)').extract()]
         product["category"] = response.meta.get('category') or ['']
-        import pdb;pdb.set_trace()
         product["skus"] = self.get_skus(response)
         product["brand"] = 'WARDA'
         product['p_type'] = 'cloth'
