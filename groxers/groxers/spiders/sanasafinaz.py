@@ -40,6 +40,8 @@ class SanasafinazSpider(Spider):
         product["out_of_stock"] = self.get_stock_availablity(response)
         product["skus"] = self.get_item_skus(response)
         product['p_type'] = 'cloth'
+        product['source'] = 'sanasafinaz'
+        product['brand'] = 'sanasafinaz'
         product["url"] = response.url
         yield product
 
@@ -78,23 +80,26 @@ class SanasafinazSpider(Spider):
     def get_item_skus(self, response):
         color_name = response.xpath("//td[@data-th='Color']/text()").extract_first()
         if not(color_name):
-            color_name = "no_color"
+            color_name = "no"
         currency = response.xpath("//meta[@itemprop='priceCurrency']/@content").extract_first()
         price = response.xpath("//meta[@itemprop='price']/@content").extract_first()
         sizes, prices = self.get_item_sizes(response)
-        color_scheme = {}
+        skus = []
         if sizes:
             for size, amount in zip(sizes, prices):
-                color_scheme[color_name+"_"+size] = {
+                skus.append({
                     "color": color_name,
-                    "new_price": amount,
+                    "price": amount,
                     "size": size,
-                    "currency_code": currency,
-                }
+                    "currency": currency,
+                    "out_of_stock": self.get_stock_availablity(response),
+                }.copy())
         else:
-            color_scheme[color_name] = {
+            skus.append({
                 "color": color_name,
-                "new_price": price.replace(",", ''),
-                "currency_code": currency,
-            }
-        return color_scheme
+                "size": "one size",
+                "price": price.replace(",", ''),
+                "out_of_stock": self.get_stock_availablity(response),
+                "currency": currency,
+            })
+        return skus

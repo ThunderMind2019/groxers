@@ -51,7 +51,7 @@ class AlfatahSpider(Spider):
         product['description'] = response.css('.std.gray::text').extract_first()
         product['category'] = cleanse(response.css('.breadcrumbs ::text').extract())[1:-1]
         product['attributes'] = self.get_attributes(response)
-        product['images'] = response.css('#cloudZoom::attr(href)').extract()
+        product['images'] = response.css('#image::attr(src)').extract()
         product['skus'] = self.get_skus(response)
         product['source'] = 'alfatah'
         product['p_type'] = 'groxer'
