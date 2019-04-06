@@ -5,19 +5,25 @@ def cleanse(list_or_str):
     
     return [s.strip() for s in list_or_str if s.strip()]
 
-def get_main_category(sub_cat):
-    for cat, k_words in main_to_sub_category_map.items():
-        for key in k_words:
-            if key in sub_cat or sub_cat in key:
-                return cat
+def get_main_category(sub_cat, item_type):
+    category_map = groxer_category_map if item_type == 'groxer' else \
+        clothing_category_map
 
-def get_sub_category(category_strs):
+    for category, keywords in category_map.items():
+        for key in keywords:
+            if key == sub_cat:
+                return category
+
+def get_sub_category(category_strs, item_type):
+    sub_category_map = groxer_sub_category_map if item_type == 'groxer' else \
+        clothing_sub_category_map
+
     for category, keywords in sub_category_map.items():
         for keyword in sorted(keywords, key=len, reverse=True):
             if keyword in category_strs:
                 return category
 
-sub_category_map = {
+clothing_sub_category_map = {
     'bags': ['bags', 'clutch', 'luggage'],
     'shawls/stoles': ['shawls', 'stoles'],
     'bottoms': ['shalwar', 'bottoms', 'trousers', 'pants', 'denim', 'tights'],
@@ -29,6 +35,11 @@ sub_category_map = {
     'dresses': ['dress', 'piece suit', 'piece dress'],
     'socks': ['socks'],
     'undergarments': ['undergarments', 'underwear', 'under wear', 'boxers', 'vest',],
+    'mens': ['men', 'boys'],
+    'girls': ['girls'],
+}
+
+groxer_sub_category_map = {
     'hair accessories': ['hair accessories'],
     'juicer blender & grinder': ['juicer', 'blender', 'grinder'],
     'irons': ['irons',],
@@ -36,7 +47,6 @@ sub_category_map = {
     'kettles & coffee makers': ['kettles', 'coffee makers',],
     'vacuum cleaners': ['vacuum cleaners',],
     'fryers': ['fryers',],
-    'fans': ['fans',],
     'e mixer': ['e mixer',],
     'toaster & sandwich maker': ['toaster','sandwich maker',],
     'medical accessories': ['medical accessories',],
@@ -47,14 +57,11 @@ sub_category_map = {
     'emergency lights': ['emergency lights',],
     'bbq grills': ['bbq grills',],
     'tissue box': ['tissue box',],
-    'bowls': ['bowls',],
     'ashtray': ['ashtray',],
-    'trays': ['trays',],
     'candle stands': ['candle stands',],
     'mirrors': ['face mirrors',],
     'bath decor': ['bath decor',],
     'flowers': ['flowers',],
-    'vase': ['vase',],
     'mix decoration items': ['mix decoration items',],
     'photo frame & album decor': ['photo frame', 'album decor',],
     'jewellery box': ['jewellery box'],
@@ -77,11 +84,7 @@ sub_category_map = {
     'perfume': ['perfume',],
     'dairy': ['dairy',],
     'pantry': ['pantry',],
-    'beverages': ['beverages', 'coffee', 'tea', 'soft drink'],
     'frozen food': ['frozen food',],
-    'deli': ['deli',],
-    'general items': ['noodles', 'pasta', 'sauce', 'ghee', 'oil', 'olives', 'bakery',
-                      'biscuits', 'cereal', 'pulses', 'rice', 'spices'],
     'snacks': ['snack', 'confectionary'],
     'home baking': ['baking',],
     'diet and nutrition': ['diet', 'nutrition',],
@@ -92,20 +95,30 @@ sub_category_map = {
     'baby products': ['baby products', 'baby items'],
     'baby feeding': ['baby feeding'],
     'diapers': ['diapers'],
+    'general items': ['noodles', 'pasta', 'sauce', 'ghee', 'oil', 'olives', 'bakery',
+                      'biscuits', 'cereal', 'pulses', 'rice', 'spices'],
+    'bowls': ['bowls',],
+    'trays': ['trays',],
+    'vase': ['vase',],
     'other electronics': ['insect killers', 'electric', 'electronics'],
     'other accessories': ['accessories'],
-    'mens': ['men', 'boys'],
-    'girls': ['girls'],
+    'deli': ['deli',],
+    'fans': ['fans',],
+    'beverages': ['beverages', 'coffee', 'tea', 'soft drink'],
 }
 
-main_to_sub_category_map = {
+clothing_category_map = {
+    "Men's Clothing": ['mens'],
+    "Women's Clothing": ['unstitched', 'stitched', 'bottoms', 'girls', 'tops', 'dresses'],
+    'Accessories': ['bags', 'shawls/stoles', 'socks', 'undergarments', 'other accessories'],
+}
+
+groxer_category_map = {
     'Electronics': ['hair accessories', 'juicer blender & grinder', 'irons', 'shavers & trimmers',
                     'kettles & coffee makers', 'vacuum cleaners', 'fryers', 'fans', 'e mixer',
                     'toaster & sandwich maker', 'insect killers', 'medical accessories',
                     'scales', 'humidifier', 'choppers', 'emergency lights', 'bbq grills', 'other electronics'],
-    "Men's Clothing": ['mens'],
-    "Women's Clothing": ['unstitched', 'stitched', 'bottoms', 'girls', 'tops', 'dresses'],
-    'Accessories': ['bags', 'shawls/stoles', 'socks', 'undergarments', 'other accessories'],
+    'Accessories': ['other accessories'],
     'Decoration': ['tissue box', 'bowls', 'ashtray', 'trays', 'candle stands',
                    'mirrors', 'bath decor', 'flowers', 'vase', 'mix decoration items',
                    'photo frame & album decor', 'jewellery box'],
