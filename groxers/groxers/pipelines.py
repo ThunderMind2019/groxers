@@ -33,13 +33,20 @@ class IdentifyCategory(object):
         sub_cat = get_sub_category(item_cat, item_type)
 
         if sub_cat:
-            item['category'] = [get_main_category(sub_cat, item_type), sub_cat.title()]
-        elif item_type =='cloth':
+            main_cat = get_main_category(sub_cat, item_type)
+            if not main_cat:
+                print(f"{item['category']} not classified")
+
+            item['category'] = [main_cat or 'Miscellaneous', sub_cat.title()]
+            return item
+    
+        if item_type =='cloth':
             item['category'] = ["Women's Clothing", 'Other']
+            return item
         else:
             item['category'] = ['Miscellaneous', 'Other']
+            return item
 
-        return item
 
 
 class UploadProduct(object):
