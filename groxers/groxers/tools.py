@@ -123,7 +123,7 @@ groxer_category_map = {
                    'mirrors', 'bath decor', 'flowers', 'vase', 'mix decoration items',
                    'photo frame & album decor', 'jewellery box'],
     'Toys': ['video games', 'educational toys', 'activity toys'] ,
-    'Grocery': ['dairy', 'pantry', 'beverages', 'frozen food', 'deli', 'general items'
+    'Grocery': ['dairy', 'pantry', 'beverages', 'frozen food', 'deli', 'general items',
                 'snacks', 'home baking', 'diet and nutrition', 'fruits & vegetables'],
     'Health and Beauty': ['toiletries', 'hair care', 'personal care', 'skin care', 'cosmetic', 'perfume'],
     'Household Essentials': ['insecticides', 'kitchen ware', 'laundry', 'cleaners', 'kitchen items',
