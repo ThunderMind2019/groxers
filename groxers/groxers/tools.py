@@ -19,7 +19,7 @@ def get_sub_category(category_strs, item_type):
     sub_category_map = groxer_sub_category_map if item_type == 'groxer' else \
         clothing_sub_category_map
 
-    category_strs = re.split(r"\W+", category_strs)
+    category_strs = re.split(r"\W+|\-", category_strs)
     category_strs = [c.lower() for c in category_strs]
     
     if "mens" in category_strs:

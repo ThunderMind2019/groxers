@@ -50,30 +50,32 @@ class JSpider(Spider):
             "color": color,
             "price": price.replace(",", ''),
             "currency": currency,
+            "size": "one size",
         }
 
         data = response.css(
             'script:contains("Magento_Swatches/js/swatch-renderer")::text').extract_first()
         if not data:
-            common_sku['size'] = 'one size'
             common_sku["out_of_stock"] = False
             return [common_sku]
 
         data = json.loads(data)['[data-role=swatch-options]']['Magento_Swatches/js/swatch-renderer']
-        raw_sizes = data['jsonConfig']['attributes']
+        attrs = data['jsonConfig']['attributes']
         
-        if not raw_sizes:
-            common_sku['size'] = 'one size'
+        if not attrs:
             common_sku["out_of_stock"] = False
             return [common_sku]
         
-        raw_sizes = raw_sizes['963']['options']
-        available_sizes = data['jsonSwatchConfig']['963'].keys()
+        attr_type = 'size' if attrs.get('963') else 'color'
+        available_sizes = list(data['jsonSwatchConfig'].values())[0].keys()
 
         skus = []
-        for size in raw_sizes:
+        for size in list(attrs.values())[0]['options']:
             sku = common_sku.copy()
-            sku["size"] = size['label']
+            if attr_type == 'size':
+                sku["size"] = size['label']
+            else:
+                sku['color'] = size['label']
             sku["out_of_stock"] = False if size['id'] in available_sizes else True
             skus.append(sku)
         return skus

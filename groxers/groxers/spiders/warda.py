@@ -30,8 +30,7 @@ class WardaSpider(Spider):
 
     def get_skus(self, response):
         data = response.css('script:contains("var json_product =")::text').extract_first()
-        # import pdb; pdb.set_trace()
-        raw_data = re.findall('var json_product\s*=\s*({.*})', data)[0]
+        raw_data = re.findall(r'var json_product\s*=\s*({.*})', data)[0]
         raw_data = json.loads(raw_data)
         skus = []
 
