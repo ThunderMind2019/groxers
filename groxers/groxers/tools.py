@@ -1,3 +1,4 @@
+import re
 
 def cleanse(list_or_str):
     if isinstance(list_or_str, str):
@@ -17,6 +18,12 @@ def get_main_category(sub_cat, item_type):
 def get_sub_category(category_strs, item_type):
     sub_category_map = groxer_sub_category_map if item_type == 'groxer' else \
         clothing_sub_category_map
+
+    category_strs = re.split(r'\W+', category_strs)
+    category_strs = [c.lower() for c in category_strs]
+    
+    if 'mens' in category_strs:
+        return 'mens'
 
     for category, keywords in sub_category_map.items():
         for keyword in sorted(keywords, key=len, reverse=True):
@@ -109,7 +116,7 @@ groxer_sub_category_map = {
 
 clothing_category_map = {
     "Men's Clothing": ['mens'],
-    "Women's Clothing": ['unstitched', 'stitched', 'bottoms', 'girls', 'tops', 'dresses'],
+    "Women's Clothing": ['unstitched', 'stitched', 'bottoms', 'girls', 'tops', 'dresses', 'stitched/unstitched'],
     'Accessories': ['bags', 'shawls/stoles', 'socks', 'undergarments', 'other accessories'],
 }
 

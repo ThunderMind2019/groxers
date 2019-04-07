@@ -30,7 +30,8 @@ class JSpider(Spider):
 
     def get_category(self, response):
         data = response.css('script:contains("var dlObjects =")::text').extract_first()
-        return [re.findall('category":"(.*?)"', data)[0].replace('\\', '')]
+        cat = response.css('[data-th="Product Category"]::text').extract() or []
+        return [re.findall('category":"(.*?)"', data)[0].replace('\\', '')] + cat
 
     def get_images(self, response):
         data = json.loads(response.css('script:contains("mage/gallery/gallery")::text').extract_first())
@@ -45,30 +46,35 @@ class JSpider(Spider):
         if not(color):
             color = "no"
 
+        common_sku = {
+            "color": color,
+            "price": price.replace(",", ''),
+            "currency": currency,
+        }
+
         data = response.css(
             'script:contains("Magento_Swatches/js/swatch-renderer")::text').extract_first()
         if not data:
-            return [{
-                "color": color,
-                "size": 'one size',
-                "price": price.replace(",", ''),
-                "currency": currency,
-                "out_of_stock": False,
-            }]
+            common_sku['size'] = 'one size'
+            common_sku["out_of_stock"] = False
+            return [common_sku]
 
         data = json.loads(data)['[data-role=swatch-options]']['Magento_Swatches/js/swatch-renderer']
-        raw_sizes = data['jsonConfig']['attributes']['963']['options']
+        raw_sizes = data['jsonConfig']['attributes']
+        
+        if not raw_sizes:
+            common_sku['size'] = 'one size'
+            common_sku["out_of_stock"] = False
+            return [common_sku]
+        
+        raw_sizes = raw_sizes['963']['options']
         available_sizes = data['jsonSwatchConfig']['963'].keys()
 
         skus = []
         for size in raw_sizes:
-            sku = {
-                "color": color,
-                "size": size['label'],
-                "out_of_stock": False if size['id'] in available_sizes else True,
-                "price": price,
-                "currency": currency,
-            }.copy()
+            sku = common_sku.copy()
+            sku["size"] = size['label']
+            sku["out_of_stock"] = False if size['id'] in available_sizes else True
             skus.append(sku)
         return skus
 
