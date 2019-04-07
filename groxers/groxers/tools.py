@@ -24,6 +24,8 @@ def get_sub_category(category_strs, item_type):
     
     if 'mens' in category_strs:
         return 'mens'
+    if 'boys' in category_strs:
+        return 'boys'
 
     for category, keywords in sub_category_map.items():
         for keyword in sorted(keywords, key=len, reverse=True):
@@ -42,7 +44,6 @@ clothing_sub_category_map = {
     'dresses': ['dress', 'piece suit', 'piece dress'],
     'socks': ['socks'],
     'undergarments': ['undergarments', 'underwear', 'under wear', 'boxers', 'vest',],
-    'mens': ['men', 'boys'],
     'girls': ['girls'],
 }
 
@@ -115,7 +116,7 @@ groxer_sub_category_map = {
 }
 
 clothing_category_map = {
-    "Men's Clothing": ['mens'],
+    "Men's Clothing": ['mens', 'boys'],
     "Women's Clothing": ['unstitched', 'stitched', 'bottoms', 'girls', 'tops', 'dresses', 'stitched/unstitched'],
     'Accessories': ['bags', 'shawls/stoles', 'socks', 'undergarments', 'other accessories'],
 }
