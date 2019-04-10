@@ -61,11 +61,11 @@ class JSpider(Spider):
 
         data = json.loads(data)['[data-role=swatch-options]']['Magento_Swatches/js/swatch-renderer']
         attrs = data['jsonConfig']['attributes']
-        
+
         if not attrs:
             common_sku["out_of_stock"] = False
             return [common_sku]
-        
+
         attr_type = 'size' if attrs.get('963') else 'color'
         available_sizes = list(data['jsonSwatchConfig'].values())[0].keys()
 
