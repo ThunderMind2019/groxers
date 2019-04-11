@@ -12,6 +12,9 @@ class SanasafinazSpider(Spider):
     allowed_domains = ['sanasafinaz.com']
     start_urls = ['https://www.sanasafinaz.com/']
 
+    def start_requests(self):
+        return [Request('https://www.sanasafinaz.com/pk/lynae-a.html', self.parse_product_details, meta={'category':[]})]
+
     def parse(self, response):
         category_links = response.xpath("//div[@id='om']/ul/li/a")
         category_links = category_links[:-2]
@@ -98,7 +101,7 @@ class SanasafinazSpider(Spider):
             skus.append({
                 "color": color_name,
                 "size": "one size",
-                "price": price.replace(",", ''),
+                "price": price.replace(",", '') if price else None,
                 "out_of_stock": self.get_stock_availablity(response),
                 "currency": currency,
             })

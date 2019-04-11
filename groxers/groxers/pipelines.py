@@ -32,6 +32,10 @@ class IdentifyCategory(object):
         item_cat = item_cat.lower()
         sub_cat = get_sub_category(item_cat, item_type)
 
+        if not sub_cat:
+            print('Could not map subcategory.\n',
+                f'Add {item["category"]} as keyword to clothing/groxer sub_category map.')
+
         if sub_cat:
             main_cat = get_main_category(sub_cat, item_type)
             if not main_cat:
