@@ -21,7 +21,7 @@ def get_sub_category(category_strs, item_type):
 
     category_strs = re.split(r"\W+|\-", category_strs)
     category_strs = [c.lower() for c in category_strs]
-    
+
     if "mens" in category_strs:
         return "mens"
     if "boys" in category_strs:
