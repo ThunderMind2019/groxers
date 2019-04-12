@@ -43,7 +43,7 @@ class IdentifyCategory(object):
 
             item['category'] = [main_cat or 'Miscellaneous', sub_cat.title()]
             return item
-    
+
         if item_type =='cloth':
             item['category'] = ["Women's Clothing", 'Other']
             return item
@@ -63,10 +63,14 @@ class UploadProduct(object):
         headers = {
             "Content-Type": "application/json",
         }
-        res = requests.post(
-            url=api,
-            data=json.dumps(dict(item)),
-            headers=headers,
-        )
+        try:
+            res = requests.post(
+                url=api,
+                data=json.dumps(dict(item)),
+                headers=headers,
+                timeout=3,
+            )
+        except requests.exceptions.Timeout as timeout:
+            print("Exception: {}".format(timeout))
 
         return item
