@@ -24,7 +24,7 @@ class JSpider(Spider):
         product["skus"] = self.get_skus(response)
         product["brand"] = 'J.'
         product['p_type'] = 'cloth'
-        product['source'] = 'J.'
+        product['source'] = 'j.'
         product["url"] = response.url
         return product
 

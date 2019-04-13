@@ -12,9 +12,6 @@ class SanasafinazSpider(Spider):
     allowed_domains = ['sanasafinaz.com']
     start_urls = ['https://www.sanasafinaz.com/']
 
-    def start_requests(self):
-        return [Request('https://www.sanasafinaz.com/pk/lynae-a.html', self.parse_product_details, meta={'category':[]})]
-
     def parse(self, response):
         category_links = response.xpath("//div[@id='om']/ul/li/a")
         category_links = category_links[:-2]
@@ -26,6 +23,8 @@ class SanasafinazSpider(Spider):
         product_links = response.xpath(
             "//a[contains(@class, 'product-item-link')]/@href").extract()
         for link in product_links:
+            if '/us/' in link:
+                link = link.replace('/us/', '/pk/')
             yield Request(link, self.parse_product_details, meta=response.meta.copy())
 
         next_link = response.xpath("//a[@title='Next']/@href").extract_first()

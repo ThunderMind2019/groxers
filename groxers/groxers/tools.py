@@ -122,10 +122,6 @@ clothing_category_map = {
 }
 
 groxer_category_map = {
-    "Electronics": ["hair accessories", "juicer blender & grinder", "irons", "shavers & trimmers",
-                    "kettles & coffee makers", "vacuum cleaners", "fryers", "fans", "e mixer",
-                    "toaster & sandwich maker", "insect killers", "medical accessories",
-                    "scales", "humidifier", "choppers", "emergency lights", "bbq grills", "other electronics"],
     "Accessories": ["other accessories"],
     "Decoration": ["tissue box", "bowls", "ashtray", "trays", "candle stands",
                    "mirrors", "bath decor", "flowers", "vase", "mix decoration items",

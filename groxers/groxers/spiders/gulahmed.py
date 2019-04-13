@@ -51,7 +51,7 @@ class GulahmedSpider(Spider):
 
     def is_in_stock(self, response):
         stock = response.xpath("//div[@title='Availability']/span/text()").extract_first().strip()
-        return False if stock == "In stock" else True
+        return False if stock.lower().strip() == "in stock" else True
 
     def get_item_attributes(self, response):
         attrib = response.xpath(
