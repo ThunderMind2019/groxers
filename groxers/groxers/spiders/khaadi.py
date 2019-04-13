@@ -50,7 +50,7 @@ class KhaadiSpider(scrapy.Spider):
     def get_description(self, response):
         raw_desc = response.xpath("//div[@itemprop='description']//text()").extract()
         raw_desc = [desc.strip() for desc in raw_desc if desc.strip() and '.swatch-option' not in desc]
-        return ' '.join(raw_desc)
+        return raw_desc
 
     def get_item_images(self, response):
         images = response.xpath(
@@ -65,7 +65,7 @@ class KhaadiSpider(scrapy.Spider):
             "//td[@data-th='Material']/text()").extract_first()
         if material:
             return {
-                "Material": material,
+                "Material": [material],
             }
         else:
             return {}

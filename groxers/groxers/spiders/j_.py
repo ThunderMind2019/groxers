@@ -17,7 +17,7 @@ class JSpider(Spider):
         product["name"] = response.css('.page-title > span::text').extract_first()
         product["pid"] = response.css('[itemprop="sku"]::text').extract_first()
         product["description"] = cleanse(response.css('[itemprop="description"] ::text').extract())
-        product["attributes"] = {row.css('th::text').extract_first(): row.css('td::text').extract_first()
+        product["attributes"] = {row.css('th::text').extract_first(): [row.css('td::text').extract_first()]
                                  for row in response.css('#product-attribute-specs-table tr')}
         product["images"] = self.get_images(response)
         product["category"] = self.get_category(response)

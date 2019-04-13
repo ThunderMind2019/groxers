@@ -17,7 +17,7 @@ class WardaSpider(Spider):
         product["name"] = ' '.join(cleanse(response.css('[itemprop="name"] ::text').extract()))
         product["pid"] = response.css('.variant-sku::text').extract_first()
         product["description"] = cleanse(response.css('#collapse-tab1 ::text').extract())
-        product["attributes"] = {}
+        product["attributes"] = {}.copy()
         product["images"] = [f'https:{i}' for i in response.css(
             '.picture-product ::attr(data-zoom-image)').extract()]
         product["category"] = response.meta.get('category') or ['']
@@ -38,7 +38,7 @@ class WardaSpider(Spider):
             color_index = raw_data['options'].index('Color')
         except:
             color_index = -1
-        
+
         try:
             size_index = raw_data['options'].index('Size')
         except:

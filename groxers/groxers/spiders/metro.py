@@ -114,12 +114,12 @@ class MetroSpider(Spider):
     def get_description(self, raw_product):
         desc = raw_product['product_desc']
 
-        if not desc:
-            return ''
+        if not desc or desc == "0":
+            return []
 
         raw_desc = Selector(text=desc)
         raw_desc = raw_desc.xpath('.//text()').extract()
         raw_desc = [desc.strip() for desc in raw_desc if desc.strip()]
         raw_desc = ' '.join(raw_desc).replace('\xa0', '')
-        desc = ' '.join(raw_desc.split(' '))
+        desc = raw_desc.split(' ')
         return desc

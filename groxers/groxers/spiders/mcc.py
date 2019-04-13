@@ -41,7 +41,7 @@ class MccSpider(Spider):
         groxery['source'] = 'mcc'
         groxery['url'] = response.url
         groxery['brand'] = 'Madina C&C'
-        groxery['description'] = ''
+        groxery['description'] = []
         groxery['attributes'] = {}.copy()
         groxery['p_type'] = 'groxer'
         groxery['skus'] = self.skus(response)

@@ -48,7 +48,7 @@ class AlfatahSpider(Spider):
         product['pid'] = id_brand.pop(0)
         product['brand'] = id_brand.pop(0) if id_brand else ''
         product['name'] = response.css('.product-name>h1::text').extract_first()
-        product['description'] = response.css('.std.gray::text').extract_first()
+        product['description'] = [response.css('.std.gray::text').extract_first()]
         product['category'] = cleanse(response.css('.breadcrumbs ::text').extract())[1:-1]
         product['attributes'] = self.get_attributes(response)
         product['images'] = response.css('#image::attr(src)').extract()

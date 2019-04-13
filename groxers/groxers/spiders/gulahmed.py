@@ -47,7 +47,7 @@ class GulahmedSpider(Spider):
     def get_item_description(self, response):
         raw_desc = response.xpath("//div[contains(@class, 'description')]/div//text()").extract()
         raw_desc = [desc.strip() for desc in raw_desc if desc.strip()]
-        return ' '.join(raw_desc)
+        return raw_desc
 
     def is_in_stock(self, response):
         stock = response.xpath("//div[@title='Availability']/span/text()").extract_first().strip()
@@ -57,7 +57,7 @@ class GulahmedSpider(Spider):
         attrib = response.xpath(
             "//td[@data-th='Manufacturer']/text()").extract_first()
         attributes = {}
-        attributes["Manufacturer"] = attrib
+        attributes["Manufacturer"] = [attrib]
         return attributes
 
     def get_item_images(self, response):
