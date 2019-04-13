@@ -2,8 +2,9 @@
 import re
 import json
 
+from scrapy.http import Request, FormRequest
 from scrapy.linkextractors import LinkExtractor
-from scrapy.spiders import CrawlSpider, Spider, Rule, Request
+from scrapy.spiders import CrawlSpider, Spider, Rule
 
 from groxers.items import Groxer
 from groxers.tools import cleanse
@@ -39,7 +40,8 @@ class JSpider(Spider):
 
     def get_skus(self, response):
         data = response.css('script:contains("var dlObjects =")::text').extract_first()
-        price = re.findall('price":"(.*?)"', data)[0]
+        price = response.css('[data-price-type="finalPrice"]::attr(data-price-amount)').extract_first()
+        prev_price = response.css('[data-price-type="oldPrice"]::attr(data-price-amount)').extract_first()
         currency = response.xpath("//meta[@itemprop='priceCurrency']/@content").extract_first()
 
         color = response.css("td[data-th='Color']::text").extract_first()
@@ -48,7 +50,8 @@ class JSpider(Spider):
 
         common_sku = {
             "color": color,
-            "price": price.replace(",", ''),
+            "price": price,
+            "prev_price": prev_price,
             "currency": currency,
             "size": "one size",
         }
@@ -85,6 +88,7 @@ class JCrawler(CrawlSpider):
     parser = JSpider()
     allowed_domains = ['junaidjamshed.com']
     start_urls = ['https://www.junaidjamshed.com/']
+    currency_url = 'https://www.junaidjamshed.com/directory/currency/switch/'
 
     listings_css = ['.magicmenu', '.page']
     products_css = ['.product-item-photo']
@@ -95,8 +99,12 @@ class JCrawler(CrawlSpider):
     )
 
     def start_requests(self):
-        cookies = {'countrycurrency': 'PKR'}
-        return [Request(self.start_urls[0], cookies=cookies)]
+        payload = {
+            'currency': 'PKR',
+            'uenc': 'aHR0cHM6Ly93d3cuanVuYWlkamFtc2hlZC5jb20vamxhd24tcy0xOS0wODItcy1mbHV0dGVyLWN5YW4uaHRtbA,,',
+            'form_key': 'SzmTLWFevFseoeyM',
+        }
+        return [FormRequest(self.currency_url, formdata=payload)]
 
     def parse_item(self, response):
         return self.parser.parse(response)
