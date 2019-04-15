@@ -39,7 +39,8 @@ class IdentifyCategory(object):
         if sub_cat:
             main_cat = get_main_category(sub_cat, item_type)
             if not main_cat:
-                print(f"{item['category']} not classified")
+                print(f"subcategory:{sub_cat} does not have a main category. '\
+                    'Add it in the clothing/groxers category map")
 
             item['category'] = [main_cat or 'Miscellaneous', sub_cat.title()]
             return item

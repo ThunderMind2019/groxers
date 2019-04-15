@@ -117,7 +117,8 @@ groxer_sub_category_map = {
 
 clothing_category_map = {
     "Men's Clothing": ["mens", "boys"],
-    "Women's Clothing": ["unstitched", "stitched", "bottoms", "girls", "tops", "dresses", "stitched/unstitched"],
+    "Women's Clothing": ["unstitched", "stitched", "bottoms", "girls", "tops",
+                         "dresses", "stitched/unstitched", "footwear"],
     "Accessories": ["bags", "shawls/stoles", "socks", "undergarments", "other accessories"],
 }
 
