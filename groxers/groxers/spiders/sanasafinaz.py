@@ -22,7 +22,7 @@ class SanasafinazSpider(Spider):
     def parse_product_links(self, response):
         product_links = response.xpath(
             "//a[contains(@class, 'product-item-link')]/@href").extract()
-        for link in product_links:if '/us/' in link:
+        for link in product_links:
             link = link.replace('/us/', '/pk/')
             yield Request(link, self.parse_product_details, meta=response.meta.copy(), meta={'dont_redirect': True})
 
