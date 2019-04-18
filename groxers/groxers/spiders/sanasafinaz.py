@@ -24,7 +24,7 @@ class SanasafinazSpider(Spider):
             "//a[contains(@class, 'product-item-link')]/@href").extract()
         for link in product_links:
             link = link.replace('/us/', '/pk/')
-            yield Request(link, self.parse_product_details, meta=response.meta.copy(), meta={'dont_redirect': True})
+            yield Request(link, self.parse_product_details, meta=response.meta.copy())
 
         next_link = response.xpath("//a[@title='Next']/@href").extract_first()
         if next_link:
