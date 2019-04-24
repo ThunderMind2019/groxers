@@ -45,6 +45,7 @@ clothing_sub_category_map = {
     "socks": ["socks"],
     "undergarments": ["undergarments", "underwear", "under wear", "boxers", "vest",],
     "girls": ["girls"],
+    "other": ["others",]
 }
 
 groxer_sub_category_map = {
@@ -119,7 +120,7 @@ clothing_category_map = {
     "Men's Clothing": ["mens", "boys"],
     "Women's Clothing": ["unstitched", "stitched", "bottoms", "girls", "tops",
                          "dresses", "stitched/unstitched", "footwear"],
-    "Accessories": ["bags", "shawls/stoles", "socks", "undergarments", "other accessories"],
+    "Accessories": ["bags", "shawls/stoles", "socks", "undergarments", "other accessories", "other"],
 }
 
 groxer_category_map = {
